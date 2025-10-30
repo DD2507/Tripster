@@ -1,0 +1,74 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0F172A; /* slate-900 */
+}
+.hero-section {
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+}
+.fade-in { animation: fadeIn 0.8s ease-in-out; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-in-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+/* Custom focus ring color to match theme */
+.focus\:ring-purple-500:focus {
+    --tw-ring-color: #A855F7;
+}
+
+/* Cards and custom bits to match reference visuals */
+.thing-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+.thing-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,.65) 100%);
+}
+.thing-card span,
+.thing-card small {
+    position: absolute;
+    left: 12px;
+    color: #fff;
+    z-index: 1;
+}
+.thing-card span { bottom: 36px; font-weight: 700; }
+.thing-card small { bottom: 12px; opacity: .9; }
+
+.trip-card {
+    background: #0b1324; /* deep slate */
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(123,97,255,.15);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.trip-card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(123,97,255,.25); }
+
+.btn-primary {
+    background: #7C3AED; /* purple-600 */
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+.btn-primary:hover { background:#6D28D9; }
+
+.testimonial-card {
+    background:#0b1324;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Places - Tripster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        /* Add a fallback style in case CSS link fails, ensures body styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* slate-900 */
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+    <header class="sticky top-0 left-0 right-0 z-10 p-4 bg-slate-900/70 backdrop-blur border-b border-slate-800">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full bg-purple-600"></div>
+                <h1 class="text-2xl font-bold text-white">Tripster</h1>
+            </a>
+            <nav class="hidden md:flex space-x-8 text-white">
+                <a href="index.html#home" class="hover:text-purple-300">Home</a>
+                <a href="about.html" class="hover:text-purple-300">About Us</a>
+                <a href="places.html" class="text-purple-300">Places</a>
+                <a href="services.html" class="hover:text-purple-300">Services</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero-section h-[40vh] flex items-center justify-center text-center text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-6xl font-extrabold">Explore Places</h2>
+            <p class="text-gray-300 mt-3">Curated destinations and experiences</p>
+        </div>
+    </section>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-3xl mx-auto mb-10">
+            <form onsubmit="event.preventDefault(); const d=document.getElementById('dest-q').value; if(d){ window.location.href = `index.html?dest=${encodeURIComponent(d)}` }">
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <input id="dest-q" placeholder="Search destination (e.g., Goa, India)" class="flex-1 bg-transparent outline-none text-gray-200"/>
+                    <button type="submit" class="btn-primary">Plan this</button>
+                </div>
+            </form>
+        </div>
+        <section class="mb-10">
+            <h3 class="text-2xl font-bold mb-4">Popular things to do</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                 <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?q=80&w=1000&auto=format&fit=crop');"><span>City Tours</span><small>150+ Tours</small></div>
+                <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=1000&auto=format&fit=crop');"><span>Cultural Tours</span><small>50+ Tours</small></div>
+                <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=1000&auto=format&fit=crop');"><span>Day Cruises</span><small>100+ Tours</small></div>
+                <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1534237710431-e2fc698436d0?q=80&w=1000&auto=format&fit=crop');"><span>Bus Tours</span><small>200+ Tours</small></div>
+                <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1000&auto=format&fit=crop');"><span>Beach Tours</span><small>80+ Tours</small></div>
+                <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1000&auto=format&fit=crop');"><span>Food Tours</span><small>300+ Tours</small></div>
+            </div>
+        </section>
+
+        <section>
+            <h3 class="text-2xl font-bold mb-4">Featured Trips</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-800 rounded-lg overflow-hidden shadow-lg">
+                    <img src="Gokarna City Beach-1688715349274.webp" class="w-full h-48 object-cover" alt="Gokarna">
+                    <div class="p-6"><h4 class="text-xl font-bold">GOKARNA</h4><p class="text-gray-400 mt-2">A serene 3-day escape along the beaches and temples.</p><div class="mt-4 flex items-center justify-between"><div><p class="text-sm text-gray-400">Preplanned Budget</p><p class="font-semibold">₹15,000</p></div><a class="btn-primary" href="index.html?dest=Gokarna%2C%20India&days=3&budget=15000&people=2">Plan this trip</a></div></div>
+                </div>
+                 <div class="bg-slate-800 rounded-lg overflow-hidden shadow-lg">
+                    <img src="jatayu-earth-center-452439.webp" class="w-full h-48 object-cover" alt="Varkala">
+                    <div class="p-6"><h4 class="text-xl font-bold">VARKALA, KERALA</h4><p class="text-gray-400 mt-2">Cliffs meet ocean in this coastal escape.</p><div class="mt-4 flex items-center justify-between"><div><p class="text-sm text-gray-400">Preplanned Budget</p><p class="font-semibold">₹18,000</p></div><a class="btn-primary" href="index.html?dest=Varkala%2C%20Kerala&days=3&budget=18000&people=2">Plan this trip</a></div></div>
+                </div>
+                 <div class="bg-slate-800 rounded-lg overflow-hidden shadow-lg">
+                    <img src="meghalaya.jpg" class="w-full h-48 object-cover" alt="Meghalaya">
+                    <div class="p-6"><h4 class="text-xl font-bold">MEGHALAYA</h4><p class="text-gray-400 mt-2">Misty hills and calm waterfalls.</p><div class="mt-4 flex items-center justify-between"><div><p class="text-sm text-gray-400">Preplanned Budget</p><p class="font-semibold">₹22,000</p></div><a class="btn-primary" href="index.html?dest=Meghalaya%2C%20India&days=4&budget=22000&people=3">Plan this trip</a></div></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 mt-10 py-12">
+        <div class="container mx-auto px-4 text-gray-400 text-center">©2025 Tripster. All Rights Reserved.</div>
+    </footer>
+</body>
+</html>

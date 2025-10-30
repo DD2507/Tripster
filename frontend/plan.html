@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Trip Plan - Tripster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="text-gray-200">
+    <header class="sticky top-0 left-0 right-0 z-10 p-4 bg-slate-900/70 backdrop-blur border-b border-slate-800">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full bg-purple-600"></div>
+                <h1 class="text-2xl font-bold text-white">Tripster</h1>
+            </a>
+            <nav class="hidden md:flex space-x-8 text-white">
+                <a href="index.html#home" class="hover:text-purple-300">Home</a>
+                <a href="about.html" class="hover:text-purple-300">About Us</a>
+                <a href="places.html" class="hover:text-purple-300">Places</a>
+                <a href="services.html" class="hover:text-purple-300">Services</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10">
+        <div id="plan-container" class="max-w-4xl mx-auto"></div>
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 mt-10 py-12">
+        <div class="container mx-auto px-4 text-gray-400 text-center">©2025 Tripster. All Rights Reserved.</div>
+    </footer>
+
+<script>
+// Util
+function formatINR(value) {
+    try { return Number(value).toLocaleString('en-IN', { maximumFractionDigits: 0 }); }
+    catch { return value; }
+}
+
+function renderPlan(itinerary) {
+    const outputDiv = document.getElementById('plan-container');
+    let html = `<div class="bg-slate-800 rounded-2xl shadow-xl p-8 fade-in">`;
+    html += `<h2 class="text-3xl font-bold text-center text-white mb-4">${itinerary.title}</h2>`;
+    // Add-your-own-place UI
+    const activitiesBudget = (itinerary.budget_summary && itinerary.budget_summary.activities) || 0;
+    const usedFeesInitial = Number(itinerary.activities_fee_estimated || 0);
+    const remainingInitial = Math.max(0, activitiesBudget - usedFeesInitial);
+    html += `<div class="mb-6 p-4 bg-slate-700 rounded-xl">`
+          + `<h3 class="text-lg font-semibold text-gray-200 mb-2">Add your own place (within activities budget)</h3>`
+          + `<p class="text-sm text-gray-300 mb-3">Remaining activities budget: ₹ ${formatINR(remainingInitial)}</p>`
+          + `<form id="custom-place-form" class="grid grid-cols-1 md:grid-cols-4 gap-3">`
+          + `<input id="cp-name" required placeholder="Place name" class="px-3 py-2 rounded bg-slate-800 text-gray-200 focus:outline-none">`
+          + `<input id="cp-fee" type="number" min="0" step="50" required placeholder="Estimated fee (₹)" class="px-3 py-2 rounded bg-slate-800 text-gray-200 focus:outline-none">`
+          + `<select id="cp-day" class="px-3 py-2 rounded bg-slate-800 text-gray-200 focus:outline-none">${Array.from({length: (itinerary.daily_plan||[]).length}, (_,i)=>`<option value=${i+1}>Day ${i+1}</option>`).join('')}</select>`
+          + `<button class="bg-purple-600 hover:bg-purple-700 text-white rounded px-4 py-2">Add</button>`
+          + `</form>`
+          + `<p id="cp-hint" class="text-xs text-gray-400 mt-2">You can add one custom place and it will be saved locally with this plan.</p>`
+          + `</div>`;
+    if (itinerary.minimum_budget && itinerary.minimum_budget.total_min) {
+        const minB = itinerary.minimum_budget;
+        const below = itinerary.budget_summary && itinerary.budget_summary.total_budget < minB.total_min;
+        html += `<div class="mb-6 p-4 rounded-xl ${below ? 'bg-red-900/40 border border-red-700' : 'bg-green-900/30 border-green-700'}">` +
+                `<p class="text-sm ${below ? 'text-red-300' : 'text-green-300'}">` +
+                `Minimum estimated budget: <span class="font-bold">₹ ${formatINR(minB.total_min)}</span>. ` +
+                `${below ? 'Your entered budget is below this estimate.' : ''}` +
+                `</p></div>`;
+    }
+    html += `<div class="mb-8 p-6 bg-slate-700 rounded-xl">` +
+            `<h3 class="text-xl font-semibold mb-4 text-gray-200">Budget Breakdown</h3>` +
+            `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">` +
+            `<div><p class="text-sm text-gray-400">Accommodation</p><p class="font-bold text-lg text-blue-400">₹ ${formatINR(itinerary.budget_summary.accommodation)}</p></div>` +
+            `<div><p class="text-sm text-gray-400">Food</p><p class="font-bold text-lg text-orange-400">₹ ${formatINR(itinerary.budget_summary.food)}</p></div>` +
+            `<div><p class="text-sm text-gray-400">Activities</p><p class="font-bold text-lg text-green-400">₹ ${formatINR(itinerary.budget_summary.activities)}</p></div>` +
+            `<div><p class="text-sm text-gray-400">Transport</p><p class="font-bold text-lg text-purple-400">₹ ${formatINR(itinerary.budget_summary.transport)}</p></div>` +
+            `</div></div>`;
+    if (itinerary.activities_fee_estimated) {
+        html += `<div class="mb-4 p-4 bg-slate-700 rounded-lg text-sm text-gray-300">Estimated attraction fees total: ₹ ${formatINR(itinerary.activities_fee_estimated)}</div>`;
+    }
+    if (itinerary.hotel) {
+        const h = itinerary.hotel;
+        html += `<div class="mb-8 p-6 bg-slate-700 rounded-xl">` +
+                `<h3 class="text-xl font-semibold mb-4 text-gray-200">Suggested Stay</h3>` +
+                `<div class="flex flex-col md:flex-row md:items-center md:justify-between">` +
+                `<div><p class="text-lg font-bold text-white">${h.name}</p><p class="text-gray-400">Area: ${h.area} • Rating: ${h.rating}</p></div>` +
+                `<div class="mt-3 md:mt-0 text-right"><p class="text-gray-400">₹ ${formatINR(h.price_per_night)} / night × ${h.nights} nights</p>` +
+                `<p class="font-bold text-blue-400">Estimated: ₹ ${formatINR(h.estimated_total)}</p></div></div></div>`;
+    }
+    if (itinerary.transport_advice) {
+        const t = itinerary.transport_advice;
+        html += `<div class="mb-8 p-6 bg-slate-700 rounded-xl">` +
+                `<h3 class="text-xl font-semibold mb-2 text-gray-200">Transport Suggestions</h3>` +
+                `<p class="text-gray-300">Recommended mode: <span class="font-semibold">${t.mode}</span></p>` +
+                `<p class="text-gray-400">Per-day estimate: ₹ ${formatINR(t.per_day_estimate)} • Airport transfer: ₹ ${formatINR(t.airport_transfer_estimate)}</p>` +
+                `<p class="text-gray-400 mt-1">${t.notes}</p>` +
+                `</div>`;
+    }
+    if (itinerary.daily_plan && itinerary.daily_plan.length > 0) {
+        itinerary.daily_plan.forEach((day_plan, index) => {
+            html += `<div class="mb-6 fade-in-up" style="animation-delay: ${index * 150}ms;"><h4 class="text-2xl font-bold text-gray-200 mb-4 border-b-2 border-slate-600 pb-2">Day ${day_plan.day}</h4><ul class="space-y-4">`;
+            if (day_plan.activities && day_plan.activities.length > 0) {
+                day_plan.activities.forEach(activity => {
+                    html += `<li class="flex items-start"><i data-lucide="map-pin" class="w-5 h-5 mr-3 text-green-400"></i><div><p class="font-semibold text-gray-300">${activity.time || ''}</p><p class="text-gray-400">${activity.description}</p></div></li>`;
+                });
+            }
+            if (day_plan.restaurants && day_plan.restaurants.length) {
+                html += `<div class="mt-4 p-4 bg-slate-700 rounded-lg">` +
+                        `<p class="font-semibold text-gray-200 mb-2">Food Suggestions (est. ₹ ${formatINR(day_plan.food_cost_estimated || 0)}):</p>` +
+                        `<ul class="space-y-2">`;
+                day_plan.restaurants.forEach(r => {
+                    html += `<li class="flex items-center"><i data-lucide="utensils" class="w-4 h-4 mr-2 text-orange-400"></i>` +
+                            `<span class="text-gray-300">${r.name}</span>` +
+                            `<span class="text-gray-500 ml-2">(${r.type}, ★ ${r.rating})</span>` +
+                            `<span class="text-gray-400 ml-auto">~ ₹ ${formatINR(r.estimated_cost || 0)}</span></li>`;
+                });
+                html += `</ul></div>`;
+            }
+            html += `</ul></div>`;
+        });
+    }
+    html += `</div>`;
+    outputDiv.innerHTML = html;
+    // Wire up add-your-own-place
+    const form = document.getElementById('custom-place-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            try {
+                const name = document.getElementById('cp-name').value.trim();
+                const fee = Number(document.getElementById('cp-fee').value || 0);
+                const day = Number(document.getElementById('cp-day').value || 1);
+                const activitiesBudget = (itinerary.budget_summary && itinerary.budget_summary.activities) || 0;
+                const usedFees = Number(itinerary.activities_fee_estimated || 0);
+                const remaining = Math.max(0, activitiesBudget - usedFees);
+                if (!name) return;
+                if (fee > remaining) {
+                    alert(`This place exceeds the remaining activities budget (₹ ${formatINR(remaining)}).`);
+                    return;
+                }
+                const idx = Math.max(0, day - 1);
+                itinerary.daily_plan[idx] = itinerary.daily_plan[idx] || { day, activities: [], restaurants: [] };
+                itinerary.daily_plan[idx].activities = itinerary.daily_plan[idx].activities || [];
+                itinerary.daily_plan[idx].activities.push({ time: '11:00 AM', description: name, type: 'activity', est_fee: fee });
+                itinerary.activities_fee_estimated = usedFees + fee;
+                try { sessionStorage.setItem('tripster_last_itinerary', JSON.stringify(itinerary)); } catch {}
+                renderPlan(itinerary);
+                alert('Place added to your itinerary.');
+            } catch (err) { console.error(err); }
+        });
+    }
+}
+
+(async function init() {
+    const container = document.getElementById('plan-container');
+    container.innerHTML = `<div class="text-center p-8 bg-slate-800 rounded-2xl shadow-xl"><h2 class="text-2xl font-bold">Loading your itinerary...</h2></div>`;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    try {
+        let itinerary = null;
+        if (id) {
+            const resp = await fetch(`http://127.0.0.1:5000/itinerary/${encodeURIComponent(id)}`);
+            if (resp.ok) itinerary = await resp.json();
+        }
+        if (!itinerary) {
+            const raw = sessionStorage.getItem('tripster_last_itinerary');
+            if (raw) itinerary = JSON.parse(raw);
+        }
+        if (!itinerary) {
+            container.innerHTML = `<div class="text-center p-8 bg-slate-800 rounded-2xl shadow-xl"><h2 class="text-2xl font-bold text-red-500">No Itinerary Found</h2><p class="text-gray-400 mt-2">Please create a plan from the homepage.</p></div>`;
+            return;
+        }
+        renderPlan(itinerary);
+        // if (window.lucide) lucide.createIcons(); // optional
+    } catch (e) {
+        container.innerHTML = `<div class="text-center p-8 bg-slate-800 rounded-2xl shadow-xl"><h2 class="text-2xl font-bold text-red-500">Failed to Load</h2><p class="text-gray-400 mt-2">${String(e)}</p></div>`;
+    }
+})();
+</script>
+</body>
+</html>
+
+

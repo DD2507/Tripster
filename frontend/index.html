@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tripster - Your Smart Trip Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="text-gray-200">
+
+    <header class="absolute top-0 left-0 right-0 z-10 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-purple-400"><path d="M12.48 4.78a2.25 2.25 0 0 0-2.96 0L2.92 11.4a2.25 2.25 0 0 0 .15 3.32l8.15 5.43a2.25 2.25 0 0 0 2.8 0l8.15-5.43a2.25 2.25 0 0 0 .15-3.32l-6.6-6.62Z"/><path d="m18 16 4-3-4-3"/><path d="m6 16-4-3 4-3"/></svg>
+                <h1 class="text-2xl font-bold text-white">Tripster</h1>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-white">
+                <a href="index.html#home" class="hover:text-purple-300">Home</a>
+                <a href="about.html" class="hover:text-purple-300">About Us</a>
+                <a href="places.html" class="hover:text-purple-300">Places</a>
+                <a href="services.html" class="hover:text-purple-300">Services</a>
+            </nav>
+            <button class="hidden md:block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Contact Us</button>
+        </div>
+    </header>
+
+    <section id="home" class="hero-section h-[74vh] md:h-[86vh] flex items-center justify-center text-center text-white scroll-mt-16">
+        <div class="container mx-auto px-4 fade-in">
+            <p class="text-sm text-gray-300/90 mb-4">✨ Travel Your Dream Destination <a href="#places" class="underline hover:text-purple-300">Learn More</a></p>
+            <h2 class="text-4xl md:text-6xl font-extrabold leading-tight">
+                Life Is Adventure Make<br class="hidden md:block"/> The Best Of It
+            </h2>
+
+            <form id="tripForm" class="mt-8 max-w-5xl mx-auto">
+                <div class="bg-white/90 backdrop-blur-md rounded-full shadow-2xl px-4 md:px-6 py-3 md:py-4 flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
+                    <div class="flex-1 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">🏷️</div>
+                        <div class="text-left">
+                            <p class="text-xs text-gray-500 -mb-1">Where</p>
+                            <input type="text" id="destination" name="destination" required class="w-full bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none" placeholder="Search destinations">
+                        </div>
+                    </div>
+                    <div class="hidden md:block h-10 w-px bg-gray-300/60"></div>
+                    <div class="flex-1 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">📅</div>
+                        <div class="text-left">
+                            <p class="text-xs text-gray-500 -mb-1">When</p>
+                            <input type="number" id="days" name="days" min="1" required class="w-full bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none" placeholder="Days">
+                        </div>
+                    </div>
+                    <div class="hidden md:block h-10 w-px bg-gray-300/60"></div>
+                    <div class="flex-1 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">💰</div>
+                        <div class="text-left">
+                            <p class="text-xs text-gray-500 -mb-1">Budget</p>
+                            <input type="number" id="budget" name="budget" min="1000" step="500" required class="w-full bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none" placeholder="Budget (INR)">
+                        </div>
+                    </div>
+                    <div class="hidden md:block h-10 w-px bg-gray-300/60"></div>
+                    <div class="flex-1 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">👥</div>
+                        <div class="text-left">
+                            <p class="text-xs text-gray-500 -mb-1">People</p>
+                            <input type="number" id="people" name="people" min="1" value="1" required class="w-full bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none" placeholder="Number of people">
+                        </div>
+                    </div>
+                    <div class="hidden md:block h-10 w-px bg-gray-300/60"></div>
+                    <div class="flex-1 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">🍽️</div>
+                        <div class="text-left">
+                            <p class="text-xs text-gray-500 -mb-1">Diet</p>
+                            <select name="vegOnly" id="vegOnly" class="w-full bg-transparent text-gray-900 focus:outline-none">
+                                <option value="false">All cuisines</option>
+                                <option value="true">Veg only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" id="submit-button" class="ml-auto md:ml-0 shrink-0 w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center transition-colors">
+                        <svg id="button-spinner" class="hidden animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span id="button-text" class="sr-only">Browse Trip</span>
+                    </button>
+                </div>
+                <div class="mt-5">
+                    <button type="submit" class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl">Browse Trip</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <main class="container mx-auto px-4 py-16">
+        <section id="about" class="scroll-mt-24 mb-16">
+            <h3 class="text-3xl font-bold text-center mb-4">About Us</h3>
+            <p class="text-center text-gray-400 max-w-3xl mx-auto">Tripster is a smart trip planner that helps you design budget-aware itineraries. We combine travel data, simple ML heuristics, and clean UI to generate day-wise plans including stays and meals. No bookings, just clear guidance tailored to your budget.</p>
+        </section>
+
+        <section id="places" class="scroll-mt-24 mb-16">
+            <h3 class="text-3xl font-bold text-center mb-2">Places</h3>
+            <p class="text-center text-gray-400 mb-8">A few curated destinations you can try right away.</p>
+            <div class="mb-12">
+                <div class="flex items-center gap-3 mb-6">
+                    <h4 class="text-2xl font-semibold">Popular things to do</h4>
+                    <span class="bg-yellow-600/80 text-yellow-100 text-xs font-medium px-2.5 py-0.5 rounded-full">Coming Soon</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?q=80&w=1000&auto=format&fit=crop');"><span>City Tours</span><small>150+ Tours</small></div>
+                    
+                    <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=1000&auto=format&fit=crop');"><span>Cultural Tours</span><small>50+ Tours</small></div> 
+                    
+                    <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=1000&auto=format&fit=crop');"><span>Day Cruises</span><small>100+ Tours</small></div>
+                    
+                    <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1534237710431-e2fc698436d0?q=80&w=1000&auto=format&fit=crop');"><span>Bus Tours</span><small>200+ Tours</small></div>
+                    
+                    <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1000&auto=format&fit=crop');"><span>Beach Tours</span><small>80+ Tours</small></div>
+                    
+                    <div class="thing-card" style="background-image:url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1000&auto=format&fit=crop');"><span>Food Tours</span><small>300+ Tours</small></div> 
+                </div>
+            </div>
+            </section>
+
+        <section id="services" class="scroll-mt-24">
+            <h3 class="text-3xl font-bold text-center mb-2">Services</h3>
+            <p class="text-center text-gray-400 mb-8">What Tripster does for you.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 bg-slate-800 rounded-xl">
+                    <h4 class="text-xl font-semibold mb-2">Budget-aware Itineraries</h4>
+                    <p class="text-gray-400">Enter destination, days, and budget to get a balanced plan across stay, food, and activities.</p>
+                </div>
+                <div class="p-6 bg-slate-800 rounded-xl">
+                    <h4 class="text-xl font-semibold mb-2">Stay & Meals Suggestions</h4>
+                    <p class="text-gray-400">We suggest hotels and restaurants that fit your budget. No bookings, just guidance.</p>
+                </div>
+                <div class="p-6 bg-slate-800 rounded-xl">
+                    <h4 class="text-xl font-semibold mb-2">Minimum Budget Guidance</h4>
+                    <p class="text-gray-400">See a conservative minimum required budget for your trip with a clear disclaimer.</p>
+                </div>
+            </div>
+            <div class="mt-16">
+                <h3 class="text-3xl font-bold mb-6">What Our Clients Say</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="testimonial-card">
+                        <p class="text-lg font-semibold mb-2">Exceptional Service!</p>
+                        <p class="text-gray-400">Our experience in Varkala was outstanding. The views made our trip unforgettable. Highly recommended!</p>
+                        <p class="mt-4 text-sm text-gray-400">Vijay — Bangalore, India</p>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="text-lg font-semibold mb-2">Efficient and Reliable</p>
+                        <p class="text-gray-400">The Varkala tour was amazing. I really enjoyed it with my family!</p>
+                        <p class="mt-4 text-sm text-gray-400">Varsha — Hyderabad</p>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="text-lg font-semibold mb-2">Trusted Advisors</p>
+                        <p class="text-gray-400">Our journey to Meghalaya was seamless. The planning and care made it unforgettable.</p>
+                        <p class="mt-4 text-sm text-gray-400">Ramesh — Delhi, India</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="trip-plan-output" class="max-w-4xl mx-auto mt-12 scroll-mt-20">
+            </div>
+    </main>
+
+    <section class="container mx-auto px-4 mt-10">
+        <div class="bg-slate-800 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h3 class="text-3xl font-bold mb-2">Start Your Real Around The World Journey Today</h3>
+                <p class="text-gray-400 max-w-2xl">Your dream place is just a click away. Explore places or get in touch for personalized assistance.</p>
+            </div>
+            <a href="#places" class="mt-6 md:mt-0 inline-flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl">Explore Places</a>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 border-t border-slate-800 mt-10 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-purple-600"></div>
+                        <span class="font-semibold">Tripster</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-800 rounded-lg p-2 text-gray-300">
+                        <input placeholder="Enter Your Email" class="bg-transparent focus:outline-none flex-1"/>
+                        <span>✈️</span>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-3">Places</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Trending Places</li>
+                        <li>Unexplored Places</li>
+                        <li>Historical Places</li>
+                        <li>Family Trip Places</li>
+                        <li>FAQ's</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-3">About Us</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Our Story</li>
+                        <li>Our Works</li>
+                        <li>How It Works</li>
+                        <li>Our Team</li>
+                        <li>Our Clients</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-3">Packages</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Premium Packages</li>
+                        <li>Budget Packages</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-3">Contact Us</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Contact Form</li>
+                        <li>Our Offices</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-gray-500 text-sm mt-10 flex items-center justify-between">
+                <p>©2025 Tripster. All Rights Reserved.</p>
+                <div class="flex gap-4">
+                    <span class="w-8 h-8 rounded-full bg-slate-800 grid place-items-center">in</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-800 grid place-items-center">f</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-800 grid place-items-center">t</span>
+                    <span class="w-8 h-8 rounded-full bg-slate-800 grid place-items-center">▶</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/app.js"></script>
+</body>
+</html>
