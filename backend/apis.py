@@ -1,9 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv(override=True)
+
 import os
 import requests
 import time # Import time for potential retries or delays if needed
 
 # --- API Keys Configuration ---
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "AIzaSyDDXHMBEVEj6zIXZ8azNX4xncuyzrhOyCI")
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY") or GOOGLE_MAPS_API_KEY
 
 # --- API Base URLs ---
@@ -62,30 +65,31 @@ def _make_request(url, params=None, json_body=None, headers=None, method="GET", 
 
 # --- Geocoding ---
 def google_geocode_place(place_name: str):
-    """Geocode a place name to coordinates using Google Geocoding API."""
+    """Geocode a place name to coordinates using Google Maps API."""
     if not GOOGLE_MAPS_API_KEY:
         return {"status": "disabled", "reason": "missing_api_key"}
-
+    
     url = f"{GOOGLE_GEOCODING_BASE}/json"
     params = {"address": place_name, "key": GOOGLE_MAPS_API_KEY}
     result = _make_request(url, params=params, method="GET", timeout=12)
-
-    if result["status"] != "ok":
-        return result # Return error directly
-
-    data = result["data"]
-    if data.get("status") == "ZERO_RESULTS" or not data.get("results"):
-        return {"status": "not_found", "reason": data.get("status")}
-
-    first_result = data["results"][0]
-    location = first_result["geometry"]["location"]
-    return {
-        "status": "ok",
-        "lat": location["lat"],
-        "lng": location["lng"],
-        "name": first_result.get("formatted_address"),
-        "place_id": first_result.get("place_id")
-    }
+    
+    if result["status"] == "ok":
+        data = result["data"]
+        if data.get("status") == "ZERO_RESULTS" or not data.get("results"):
+            return {"status": "not_found", "reason": "ZERO_RESULTS"}
+        
+        first_result = data["results"][0]
+        location = first_result["geometry"]["location"]
+        return {
+            "status": "ok",
+            "lat": location["lat"],
+            "lng": location["lng"],
+            "name": first_result.get("formatted_address"),
+            "place_id": first_result.get("place_id")
+        }
+    
+    # Return error if Google API fails
+    return result
 
 # --- Legacy Places API Wrappers (Nearby, Text Search, Details) ---
 def google_places_nearby(lat: float, lng: float, radius_m: int = 5000, place_type: str = "tourist_attraction", keyword: str | None = None):
@@ -182,19 +186,18 @@ def _normalize_new_places_results(places_data: list) -> list:
     return items
 
 def gplaces_new_nearby(lat: float, lng: float, radius_m: int = 8000, included_types: list | None = None, rank_preference: str = "POPULARITY", max_results: int = 20):
-    """Search nearby using Places API (New)."""
+    """Search nearby using Google Places (New) API."""
     if not GOOGLE_PLACES_API_KEY:
         return {"status": "disabled", "reason": "missing_api_key", "items": []}
-
+    
     url = f"{GOOGLE_PLACES_NEW_BASE}/places:searchNearby"
     headers = {
         "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-        # Request a comprehensive set of fields
         "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel"
     }
     body = {
-        "maxResultCount": min(max_results, 20), # API max is 20 for nearby
-        "rankPreference": rank_preference, # POPULARITY or DISTANCE
+        "maxResultCount": min(max_results, 20),
+        "rankPreference": rank_preference,
         "locationRestriction": {
             "circle": {
                 "center": {"latitude": lat, "longitude": lng},
@@ -204,25 +207,22 @@ def gplaces_new_nearby(lat: float, lng: float, radius_m: int = 8000, included_ty
     }
     if included_types:
         body["includedTypes"] = included_types
-    # Rank by distance requires included_types
     if rank_preference == "DISTANCE" and not included_types:
-         print("[API Warning] RankPreference.DISTANCE requires includedTypes. Using POPULARITY.")
-         body["rankPreference"] = "POPULARITY"
-
-
+        print("[API Warning] RankPreference.DISTANCE requires includedTypes. Using POPULARITY.")
+        body["rankPreference"] = "POPULARITY"
     result = _make_request(url, json_body=body, headers=headers, method="POST")
-    if result["status"] != "ok":
-         result["items"] = []
-         return result
-
-    normalized_items = _normalize_new_places_results(result["data"].get("places", []))
-    return {"status": "ok", "items": normalized_items}
+    if result["status"] == "ok":
+        normalized_items = _normalize_new_places_results(result["data"].get("places", []))
+        return {"status": "ok", "items": normalized_items}
+    # Return error if Google API fails
+    result["items"] = []
+    return result
 
 def gplaces_new_text_search(query: str, lat: float | None = None, lng: float | None = None, radius_m: int = 12000, included_type: str | None = None, rank_preference: str = "RELEVANCE", max_results: int = 20):
-    """Search using text query with Places API (New)."""
+    """Search using text query with Google Places (New) API."""
     if not GOOGLE_PLACES_API_KEY:
         return {"status": "disabled", "reason": "missing_api_key", "items": []}
-
+    
     url = f"{GOOGLE_PLACES_NEW_BASE}/places:searchText"
     headers = {
         "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
@@ -230,40 +230,35 @@ def gplaces_new_text_search(query: str, lat: float | None = None, lng: float | N
     }
     body = {
         "textQuery": query,
-        "maxResultCount": min(max_results, 20), # API max is 20 for text search
-        "rankPreference": rank_preference # RELEVANCE (default) or DISTANCE
-        }
+        "maxResultCount": min(max_results, 20),
+        "rankPreference": rank_preference
+    }
     if lat is not None and lng is not None:
         body["locationBias"] = {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": radius_m}}
-        # Rank by distance requires location Bias/Restriction
         if rank_preference == "DISTANCE" and "locationBias" not in body:
             print("[API Warning] RankPreference.DISTANCE requires locationBias/Restriction. Using RELEVANCE.")
             body["rankPreference"] = "RELEVANCE"
-
     if included_type:
-        body["includedType"] = included_type # Note: singular 'includedType'
-
+        body["includedType"] = included_type
     result = _make_request(url, json_body=body, headers=headers, method="POST")
-    if result["status"] != "ok":
-         result["items"] = []
-         return result
-
-    normalized_items = _normalize_new_places_results(result["data"].get("places", []))
-    return {"status": "ok", "items": normalized_items}
+    if result["status"] == "ok":
+        normalized_items = _normalize_new_places_results(result["data"].get("places", []))
+        return {"status": "ok", "items": normalized_items}
+    # Return error if Google API fails
+    result["items"] = []
+    return result
 
 
 # --- Specific Search Functions (Hotels, Restaurants, Attractions) ---
 
 def google_hotels_search(destination: str, lat: float | None = None, lng: float | None = None):
-    """Search for hotels using Google Places API (New Text Search preferred)."""
+    """Search for hotels using Google Places API."""
     print(f"Searching hotels in: {destination}")
-    # Prefer Text Search (New) as it generally gives better hotel results for a query
     query = f"hotels in {destination}"
     return gplaces_new_text_search(query, lat=lat, lng=lng, included_type="lodging")
-    # Fallback to legacy if needed (or combine results) could be added here
 
 def find_attractions_api(destination: str, lat: float, lng: float, radius_m: int = 10000, max_results: int = 40):
-    """Searches for popular tourist spots using Places API (New Nearby preferred)."""
+    """Searches for popular tourist spots using Google Places API."""
     print(f"Searching attractions near ({lat},{lng}) for {destination}")
     # Try Nearby Search first for tourist attractions, ranked by popularity
     nearby_result = gplaces_new_nearby(
@@ -292,29 +287,38 @@ def find_attractions_api(destination: str, lat: float, lng: float, radius_m: int
                 existing_names.add(item['name'])
 
     # Filter out potential non-attractions if needed (e.g., shops results from broad query)
-    # This basic filter can be improved based on types returned by the API
-    final_items = [
-        item for item in items if any(t in [
-            "tourist_attraction", "park", "museum", "landmark", "point_of_interest",
-            "zoo", "aquarium", "art_gallery", "amusement_park", "natural_feature",
-            "place_of_worship", "historic_site" # Add more relevant types
-            ] for t in item.get("types", []))
+    google_types = [
+        "tourist_attraction", "park", "museum", "landmark", "point_of_interest",
+        "zoo", "aquarium", "art_gallery", "amusement_park", "natural_feature",
+        "place_of_worship", "historic_site"
     ]
+    final_items = []
+    for item in items:
+        types = item.get("types", [])
+        # Check if any type matches Google types
+        matches = False
+        for t in types:
+            t_str = str(t).lower()
+            if any(gt.lower() in t_str for gt in google_types):
+                matches = True
+                break
+        if matches or not types:  # Include items with no types (they might still be valid)
+            final_items.append(item)
 
     print(f"Found {len(final_items)} potential attractions.")
     return {"status": "ok", "items": final_items[:max_results]} # Return final filtered list
 
 
 def find_restaurants_in_budget_api(lat: float, lng: float, radius_m: int = 3000, min_rating: float = 4.0, max_price_level: int = 4, veg_only: bool = False, max_results: int = 20):
-    """Finds restaurants nearby using Google Places API (New Nearby), filtering by rating and price."""
+    """Finds restaurants nearby, filtering by rating and price using Google Places API."""
     print(f"Searching restaurants near ({lat},{lng}), MaxPrice: {max_price_level}, MinRating: {min_rating}, VegOnly: {veg_only}")
 
     # Use Nearby Search (New) for restaurants
     nearby_result = gplaces_new_nearby(
         lat=lat, lng=lng, radius_m=radius_m,
         included_types=["restaurant"],
-        rank_preference="POPULARITY", # Or "DISTANCE"
-        max_results=20 # Fetch API max and filter
+        rank_preference="POPULARITY",
+        max_results=50
     )
 
     if nearby_result["status"] != "ok":
@@ -322,6 +326,8 @@ def find_restaurants_in_budget_api(lat: float, lng: float, radius_m: int = 3000,
 
     all_restaurants = nearby_result.get("items", [])
     filtered_restaurants = []
+    # Check if ratings are available
+    has_ratings = any(r.get('rating') is not None for r in all_restaurants)
 
     for item in all_restaurants:
         rating = item.get("rating", 0.0) or 0.0
@@ -329,7 +335,7 @@ def find_restaurants_in_budget_api(lat: float, lng: float, radius_m: int = 3000,
         name = item.get("name", "")
 
         # Apply filters
-        passes_rating = rating >= min_rating
+        passes_rating = (rating >= min_rating) if has_ratings else True
         # Pass if price_level is None (unknown) or within budget
         passes_price = (price_level is None) or (price_level <= max_price_level)
 

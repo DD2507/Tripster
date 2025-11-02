@@ -17,6 +17,118 @@ MOCK_RESTAURANTS = [
     {"name": "Local Tiffins", "avg_cost_per_person": 400, "rating": 3.9, "type": "breakfast"},
 ]
 
+# --- Static Catalog Support ---
+import json
+import os as _os
+
+_CATALOG = None
+_CATALOG_PATH = _os.path.join(_os.path.dirname(__file__), 'static_catalog.json')
+
+def _load_catalog_once():
+    global _CATALOG
+    if _CATALOG is not None:
+        return _CATALOG
+    try:
+        with open(_CATALOG_PATH, 'r', encoding='utf-8') as f:
+            _CATALOG = json.load(f)
+    except Exception:
+        _CATALOG = {}
+    return _CATALOG
+
+def get_catalog_for_destination(destination: str) -> dict | None:
+    if not destination:
+        return None
+    catalog = _load_catalog_once()
+    # Simple matching: try exact, then title-cased, then upper/lower
+    if destination in catalog:
+        return catalog[destination]
+    title = destination.title()
+    if title in catalog:
+        return catalog[title]
+    upper = destination.upper()
+    for key in catalog.keys():
+        if key.upper() == upper:
+            return catalog[key]
+    return None
+
+def get_catalog_center(destination: str):
+    c = get_catalog_for_destination(destination)
+    if not c:
+        return None
+    return c.get('center')
+
+def get_catalog_attractions(destination: str, center_lat: float | None, center_lng: float | None):
+    c = get_catalog_for_destination(destination)
+    if not c:
+        return []
+    names = c.get('attractions', [])
+    if not names:
+        return []
+    # Generate pseudo coordinates around center if present
+    lat0 = float(center_lat or 0.0)
+    lng0 = float(center_lng or 0.0)
+    items = []
+    spread = 0.05 # ~5km box depending on latitude
+    for i, name in enumerate(names):
+        lat = lat0 + ((i % 3) - 1) * spread * 0.4
+        lng = lng0 + ((i % 5) - 2) * spread * 0.25
+        items.append({
+            "name": name,
+            "geometry": {"location": {"lat": lat, "lng": lng}},
+            "types": ["tourist_attraction"],
+            "rating": None,
+            "user_ratings_total": None,
+            "price_level": None,
+            "formatted_address": destination,
+            "place_id": f"catalog:{destination}:{i}"
+        })
+    return items
+
+def select_catalog_hotel(destination: str, budget_per_night: float) -> dict | None:
+    c = get_catalog_for_destination(destination)
+    if not c:
+        return None
+    stays = c.get('stays', [])
+    if not stays:
+        return None
+    # Map budget tiers to rough INR price
+    tier_price = {"low": 2000, "medium": 5000, "high": 10000}
+    candidates = []
+    for s in stays:
+        tier = (s.get('budgetTier') or '').lower()
+        est = tier_price.get(tier, 4000)
+        candidates.append({
+            "name": s.get('name', 'Hotel'),
+            "area": destination,
+            "rating": None,
+            "price_per_night": est,
+            "estimated_per_night": est,
+        })
+    # Prefer within budget, else closest over
+    in_budget = [h for h in candidates if h["estimated_per_night"] <= budget_per_night]
+    if in_budget:
+        return sorted(in_budget, key=lambda h: h["estimated_per_night"], reverse=True)[0]
+    # else choose minimal delta over budget
+    return sorted(candidates, key=lambda h: abs(h["estimated_per_night"] - budget_per_night))[0]
+
+def get_catalog_restaurants(destination: str, veg_only: bool = False):
+    c = get_catalog_for_destination(destination)
+    if not c:
+        return []
+    items = []
+    for i, r in enumerate(c.get('restaurants', [])):
+        name = r.get('name') if isinstance(r, dict) else str(r)
+        if veg_only and name and ('veg' not in name.lower() and 'vegetarian' not in name.lower()):
+            continue
+        items.append({
+            "name": name,
+            "rating": None,
+            "price_level": None,
+            "types": ["restaurant"],
+            "geometry": {"location": {"lat": None, "lng": None}},
+        })
+    return items
+
 def select_hotel(budget_per_night: float, preferred_area: str | None = None):
     preferred_area = (preferred_area or '').lower()
     within_budget = [h for h in MOCK_HOTELS if h["price_per_night"] <= budget_per_night]

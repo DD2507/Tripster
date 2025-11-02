@@ -46,6 +46,7 @@ const iconMap = {
 
 tripForm.addEventListener('submit', async function(event) {
     event.preventDefault();
+    console.log('📋 Form submitted');
     setLoadingState(true);
 
     const formData = new FormData(tripForm);
@@ -63,41 +64,81 @@ tripForm.addEventListener('submit', async function(event) {
         mealsPerDay: parseInt(formData.get('mealsPerDay') || '2', 10)
     };
     
+    console.log('✅ Received Trip Details:', tripDetails);
+    
     let itinerary; 
 
     try {
+        console.log('🚀 Sending request to backend...');
         const response = await fetch('http://127.0.0.1:5000/plan-trip', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(tripDetails),
         });
+        
+        console.log('📡 Response status:', response.status, response.statusText);
+        
         if (!response.ok) {
             // Try to parse structured error for minimum budget
-            let err; try { err = await response.json(); } catch { err = {}; }
+            let err; 
+            try { 
+                err = await response.json(); 
+                console.error('❌ Error response:', err);
+            } catch (e) {
+                err = {};
+                console.error('❌ Could not parse error response');
+            }
+            
             if (response.status === 422 && err && err.error === 'budget_too_low') {
                 alert(err.message || 'Entered budget is below the minimum estimate.');
                 setLoadingState(false);
                 return;
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status} - ${err.message || response.statusText}`);
         }
 
         itinerary = await response.json(); 
+        console.log('✅ Received itinerary:', itinerary);
+        console.log('✅ Itinerary keys:', Object.keys(itinerary));
+        console.log('✅ Itinerary ID:', itinerary.itinerary_id);
 
         // Persist itinerary and redirect to dedicated plan page
         try {
             sessionStorage.setItem('tripster_last_itinerary', JSON.stringify(itinerary));
-        } catch {}
-        const id = itinerary.itinerary_id || '';
-        window.location.href = `plan.html${id ? `?id=${encodeURIComponent(id)}` : ''}`;
+            console.log('✅ Saved to sessionStorage');
+        } catch (e) {
+            console.warn('Could not save to sessionStorage:', e);
+        }
+        
+        const id = itinerary.itinerary_id || itinerary.id || '';
+        console.log('📋 Extracted ID:', id);
+        console.log('📍 Current location:', window.location.href);
+        
+        // Redirect immediately - don't wait
+        const redirectUrl = `plan.html${id ? `?id=${encodeURIComponent(id)}` : ''}`;
+        console.log('🔄 Redirecting to:', redirectUrl);
+        console.log('🔄 Full URL will be:', new URL(redirectUrl, window.location.origin).href);
+        
+        // Force redirect
+        try {
+            window.location.href = redirectUrl;
+        } catch (e) {
+            console.error('❌ Redirect failed, trying assign:', e);
+            window.location.assign(redirectUrl);
+        }
         
     } catch (error) {
-        console.error('Error fetching itinerary:', error);
-        outputDiv.innerHTML = `<div class="text-center p-8 bg-slate-800 rounded-2xl shadow-xl"><h2 class="text-2xl font-bold text-red-500">Failed to Generate Plan</h2><p class="text-gray-400 mt-2">Could not connect to the planning service. Please ensure the backend server is running.</p></div>`;
-    } finally {
-        setTimeout(() => {
-            setLoadingState(false);
-        }, 100); 
+        console.error('❌ Error fetching itinerary:', error);
+        console.error('Error details:', error.message);
+        console.error('Full error:', error);
+        
+        let errorMsg = error.message || 'Unknown error occurred';
+        if (error.message && error.message.includes('Failed to fetch')) {
+            errorMsg = 'Could not connect to the backend server. Please ensure it is running on http://127.0.0.1:5000';
+        }
+        
+        outputDiv.innerHTML = `<div class="text-center p-8 bg-slate-800 rounded-2xl shadow-xl"><h2 class="text-2xl font-bold text-red-500">Failed to Generate Plan</h2><p class="text-gray-400 mt-2">Error: ${errorMsg}</p><p class="text-gray-500 mt-1 text-sm">Please check the browser console (F12) for more details.</p></div>`;
+        setLoadingState(false);
     }
 });
 

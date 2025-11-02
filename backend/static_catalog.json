@@ -1,0 +1,60 @@
+{
+  "Goa": {
+    "center": { "lat": 15.2993, "lng": 74.1240 },
+    "attractions": [
+      "Baga Beach",
+      "Calangute Beach",
+      "Basilica of Bom Jesus (Old Goa)",
+      "Dudhsagar Falls",
+      "Fort Aguada"
+    ],
+    "restaurants": [
+      { "name": "Vinayak Family Restaurant, Baga" },
+      { "name": "Thalassa, Vagator" },
+      { "name": "Gunpowder, Assagao" }
+    ],
+    "stays": [
+      { "name": "Zostel Goa (budget)", "budgetTier": "low" },
+      { "name": "Fahrenheit Hotels & Resorts (mid)", "budgetTier": "medium" },
+      { "name": "Taj Exotica Resort (luxury)", "budgetTier": "high" }
+    ]
+  },
+  "Kerala": {
+    "center": { "lat": 10.8505, "lng": 76.2711 },
+    "attractions": [
+      "Alleppey Backwaters",
+      "Munnar Tea Gardens",
+      "Fort Kochi",
+      "Wayanad Wildlife",
+      "Kovalam Beach"
+    ],
+    "restaurants": [
+      { "name": "Kashi Art Café, Fort Kochi" },
+      { "name": "Karavalli (seafood speciality)" }
+    ],
+    "stays": [
+      { "name": "Houseboat stay (Alleppey)", "budgetTier": "medium" },
+      { "name": "Taj Malabar, Kochi", "budgetTier": "high" }
+    ]
+  },
+  "Karnataka": {
+    "center": { "lat": 12.9716, "lng": 77.5946 },
+    "attractions": [
+      "Mysore Palace",
+      "Hampi Ruins",
+      "Coorg Plantations",
+      "Gokarna Beaches",
+      "Bengaluru City Highlights"
+    ],
+    "restaurants": [
+      { "name": "Vidyarthi Bhavan (South Indian)" },
+      { "name": "Toit Brewpub, Indiranagar" },
+      { "name": "Karavalli (The Gateway Hotel)" }
+    ],
+    "stays": [
+      { "name": "Zostel Bangalore (budget)", "budgetTier": "low" },
+      { "name": "The Chancery Pavilion (mid)", "budgetTier": "medium" },
+      { "name": "Taj West End (luxury)", "budgetTier": "high" }
+    ]
+  }
+}
